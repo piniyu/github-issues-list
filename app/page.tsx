@@ -11,8 +11,13 @@ export default async function Home() {
   const session = await getSession()
 
   return (
-    <main>
-      <AuthBtn session={session} />
-    </main>
+    <>
+      <header>
+        <AuthBtn session={session} />
+      </header>
+      <main>
+        <ReposList />
+      </main>
+    </>
   )
 }

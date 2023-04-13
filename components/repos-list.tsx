@@ -1,21 +1,30 @@
 'use client'
-import { Link } from '@chakra-ui/react'
-// import { ReactNode, useState } from 'react'
-// import useSWR from 'swr'
+import {
+  Badge,
+  Box,
+  Heading,
+  Link,
+  SimpleGrid,
+  Text,
+  VStack,
+  Wrap,
+} from '@chakra-ui/react'
+import { Endpoints } from '@octokit/types'
 import useSWRInfinite, { SWRInfiniteKeyLoader } from 'swr/infinite'
 import { fetcher } from '~/utils/fetcher'
+import { Card, CardHeader, CardBody, CardFooter } from '@chakra-ui/react'
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 
 const getKey: SWRInfiniteKeyLoader = (pageIndex, previousPageData) => {
-  return `/api/repos?page=${pageIndex}`
+  return `/api/repos?page=${pageIndex + 1}`
 }
 
-export default function ReposList({}: // onClickPage,
-{
-  // onClickPage: (page: number) => void
-}) {
-  // const [pageIndex, setPageIndex] = useState(0)
+export default function ReposList() {
   const { data, error, isLoading, isValidating, mutate, size, setSize } =
-    useSWRInfinite(getKey, fetcher)
+    useSWRInfinite<Endpoints['GET /user/repos']['response']['data']>(
+      getKey,
+      fetcher,
+    )
   if (!data) {
     return <div>loading</div>
   }
@@ -23,28 +32,41 @@ export default function ReposList({}: // onClickPage,
   let totalRepos = 0
 
   for (let i = 0; i < data.length; i++) {
-    console.log(data[i])
     totalRepos += data[i].length
   }
 
   console.log(data)
 
   return (
-    <div>
-      <p>{totalRepos} repositories listed</p>
-
-      {data?.map((repos, index) => {
-        if (Array.isArray(repos)) {
-          return repos.map((repo: any) => (
-            <Link key={repo.id} href={repo.html_url} isExternal>
-              {repo.name}
-            </Link>
-          ))
-        }
-        return null
-      })}
-      {/* <button onClick={() => onClickPage(1)}>1</button>
-      <button onClick={() => onClickPage(2)}>2</button> */}
-    </div>
+    <VStack spacing="10">
+      <Heading size="lg">{totalRepos} repositories listed</Heading>
+      <SimpleGrid w="100%" minChildWidth="60" spacing="6">
+        {data?.map(repos => {
+          if (Array.isArray(repos)) {
+            return repos.map((repo, index) => (
+              <Card key={index}>
+                <CardHeader>
+                  <Badge colorScheme={repo.private ? 'red' : 'green'}>
+                    {repo.private ? 'Private' : 'Public'}
+                  </Badge>
+                  <Link href={`/repo/${repo.name}?owner=${repo.owner.login}`}>
+                    <Heading size="md">{repo.name}</Heading>
+                  </Link>
+                </CardHeader>
+                <CardBody py="0" fontWeight="bold">
+                  {repo.open_issues_count} issuses
+                </CardBody>
+                <CardFooter>
+                  <Link href={repo.html_url} isExternal>
+                    Github <ExternalLinkIcon mx="2px" />
+                  </Link>
+                </CardFooter>
+              </Card>
+            ))
+          }
+          return null
+        })}
+      </SimpleGrid>
+    </VStack>
   )
 }
