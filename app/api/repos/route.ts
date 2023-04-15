@@ -2,8 +2,6 @@ import { getToken } from 'next-auth/jwt'
 import { NextRequest, NextResponse } from 'next/server'
 import { createOctokitClient } from '~/utils/create-octokit-client'
 
-const per_page = '10'
-
 export async function GET(request: NextRequest) {
   const token = await getToken({ req: request, secret: process.env.SECRET })
   const url = new URL(request.url)

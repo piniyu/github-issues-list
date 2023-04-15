@@ -1,2 +1,4 @@
-export const fetcher = (...args: Parameters<typeof fetch>) =>
-  fetch(...args).then(res => res.json())
+export async function fetcher(...args: Parameters<typeof fetch>): Promise<any> {
+  const res = await fetch(...args)
+  return await res.json()
+}

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Octokit } from 'octokit'
 import { createOctokitClient } from '~/utils/create-octokit-client'
 import { getGithubToken } from '~/utils/get-server-side-props'
 
