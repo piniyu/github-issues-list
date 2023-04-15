@@ -26,18 +26,18 @@ const PAGE_SIZE = 10
 
 export default function RepoPage({ params }: { params: { repoName: string } }) {
   const owner = useSearchParams()?.get('owner') ?? ''
+  const [issueState, setIssueState] = useState('all')
 
   const getKey: SWRInfiniteKeyLoader = (pageIndex, previousPageData) => {
-    return `https://api.github.com/repos/${owner}/${
+    return `/api/issue/?owner=${owner}&repo-name=${
       params.repoName
-    }/issues?per_page=${PAGE_SIZE}&page=${pageIndex + 1}`
+    }&per_page=${PAGE_SIZE}&page=${pageIndex + 1}&labels=${
+      issueState !== 'all' ? issueState : ''
+    }`
   }
-  const { data, error, isLoading, size, setSize } = useSWRInfinite<
+  const { data, error, isLoading, size, setSize, mutate } = useSWRInfinite<
     Endpoints['GET /repos/{owner}/{repo}/issues']['response']['data']
   >(getKey, fetcher)
-
-  let flatData = data?.flat()
-  const [issueState, setIssueState] = useState('all')
 
   if (isLoading) {
     return <div>Loading</div>
@@ -46,6 +46,9 @@ export default function RepoPage({ params }: { params: { repoName: string } }) {
   } else if (!data) {
     return <div>No data found</div>
   }
+
+  let flatData = data?.flat()
+  console.log(data)
 
   const isEmpty = data?.[0]?.length === 0
   const isReachingEnd =
@@ -100,25 +103,22 @@ export default function RepoPage({ params }: { params: { repoName: string } }) {
     )
   }
 
-  const stateFilter = (state: 'open' | 'in progress' | 'done' | 'all') => {
-    switch (state) {
-      case 'open':
-        setIssueState(state)
-        flatData?.filter(e => e.state === state)
-        break
-      case 'in progress':
-        setIssueState(state)
-        flatData?.filter(e => e.state === state)
-        break
-      case 'done':
-        setIssueState(state)
-        flatData?.filter(e => e.state === state)
-        break
-      default:
-        setIssueState(state)
-        flatData = data.flat()
-    }
-  }
+  // const stateFilter = (state: 'open' | 'in progress' | 'done' | 'all') => {
+  //   const containLabel = (labels: typeof data[0][0]['labels']) => {
+  //     return !!labels.find(e => {
+  //       if (typeof e === 'string') return e === state
+  //       return e.name === state
+  //     })
+  //   }
+  //   if (state === 'all') {
+  //     flatData = flatData = data.flat()
+  //   } else {
+  //     flatData = flatData?.filter(e => containLabel(e.labels))
+  //   }
+  //   mutate()
+  //   console.log(flatData)
+  //   setIssueState(state)
+  // }
 
   return (
     <>
@@ -137,19 +137,25 @@ export default function RepoPage({ params }: { params: { repoName: string } }) {
                 {issueState}
               </MenuButton>
               <MenuList>
-                <MenuItem onClick={() => stateFilter('all')}>All</MenuItem>
-                <MenuItem onClick={() => stateFilter('open')}>Open</MenuItem>
-                <MenuItem onClick={() => stateFilter('in progress')}>
+                <MenuItem onClick={() => setIssueState('all')}>All</MenuItem>
+                <MenuItem onClick={() => setIssueState('open')}>Open</MenuItem>
+                <MenuItem onClick={() => setIssueState('in progress')}>
                   In Progress
                 </MenuItem>
-                <MenuItem onClick={() => stateFilter('done')}>Done</MenuItem>
+                <MenuItem onClick={() => setIssueState('done')}>Done</MenuItem>
               </MenuList>
             </Menu>
           </Box>
           {data[0].length === 0 ? (
             <Heading size="md">No issue!</Heading>
           ) : (
-            <div style={{ height: '70vh', flex: '1 1 auto' }}>
+            <div
+              style={{
+                height: 60 * totalOpenIssues,
+                maxHeight: '70vh',
+                flex: '1 1 auto',
+              }}
+            >
               <InfiniteLoaderComoponent
                 isReachingEnd={isReachingEnd}
                 totalItems={totalOpenIssues}

@@ -6,7 +6,7 @@ import { getSession, signIn, signOut, useSession } from 'next-auth/react'
 export default function AuthBtn({ session }: { session: Session | null }) {
   // const session =await getSession()
   // console.log(session);
-  console.log(process.env)
+  // console.log(process.env)
   return (
     <>
       {!session ? (

@@ -53,8 +53,16 @@ export default function ReposList() {
                     <Heading size="md">{repo.name}</Heading>
                   </Link>
                 </CardHeader>
-                <CardBody py="0" fontWeight="bold">
-                  {repo.open_issues_count} issuses
+                <CardBody py="0">
+                  {repo.private ? (
+                    <Text color="gray.400">
+                      Private repo does not provide issue count.
+                    </Text>
+                  ) : (
+                    <Text fontWeight="bold">
+                      {repo.open_issues_count} issues
+                    </Text>
+                  )}
                 </CardBody>
                 <CardFooter>
                   <Link href={repo.html_url} isExternal>

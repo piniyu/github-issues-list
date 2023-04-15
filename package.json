@@ -36,6 +36,7 @@
   "devDependencies": {
     "@types/react-infinite-scroller": "^1.2.3",
     "@types/react-virtualized": "^9.21.21",
-    "@types/react-window-infinite-loader": "^1.0.6"
+    "@types/react-window-infinite-loader": "^1.0.6",
+    "encoding": "^0.1.13"
   }
 }
