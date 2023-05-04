@@ -4,13 +4,9 @@ import { Endpoints } from '@octokit/types'
 import InfiniteLoaderComoponent from '~/components/infinite-loader-component'
 
 import { Flex, Heading, Link, Tag } from '@chakra-ui/react'
+import IssuesListItem from './issues-list-item'
 
 const PAGE_SIZE = 10
-enum COLOR_SCHEME {
-  open = 'red',
-  in_progress = 'blue',
-  done = 'green',
-}
 
 export default function IssuesList({
   issueState,
@@ -38,7 +34,7 @@ export default function IssuesList({
     return <div>No data found</div>
   }
 
-  let flatData = data?.flat()
+  // let flatData = data?.flat()
   console.log(data)
 
   const isEmpty = data?.[0]?.length === 0
@@ -55,61 +51,7 @@ export default function IssuesList({
   const isItemLoaded = (index: number) => {
     return isReachingEnd || index < totalOpenIssues
   }
-  /** infinity loader item function to render per item */
-  const Item = ({ index, style }: { index: number; style: any }) => {
-    let content
-    let labels
-    let issueNum
-    if (!isItemLoaded(index)) {
-      content = 'Loading...'
-    } else {
-      content = flatData ? flatData[index].title : null
-      labels = flatData ? flatData[index].labels : null
-      issueNum = flatData ? flatData[index].number : null
-    }
-    return (
-      <Flex
-        style={style}
-        borderBottom="1px"
-        borderColor="gray.200"
-        align="center"
-        gap="4"
-      >
-        {content !== 'Loading...' ? (
-          <Link href={`/repo/${owner}/${repoName}/${issueNum}`}>{content}</Link>
-        ) : (
-          content
-        )}
-        {labels?.map(label => {
-          let tagKey
-          let tagValue = ''
-          let colorScheme = 'gray'
-          if (typeof label === 'string') {
-            tagKey = label
-            tagValue = label
-          } else {
-            tagKey = label.id
-            tagValue = label.name ?? ''
-            colorScheme
-          }
-          return (
-            <Tag
-              key={tagKey}
-              borderRadius="full"
-              variant="solid"
-              colorScheme={
-                COLOR_SCHEME[
-                  tagValue.replaceAll(' ', '_') as keyof typeof COLOR_SCHEME
-                ]
-              }
-            >
-              {tagValue}
-            </Tag>
-          )
-        })}
-      </Flex>
-    )
-  }
+
   return (
     <>
       {data[0].length === 0 ? (
@@ -127,7 +69,7 @@ export default function IssuesList({
             totalItems={totalOpenIssues}
             isLoading={isLoading}
             loadMoreFn={() => setSize(prev => prev + 1)}
-            item={Item}
+            item={IssuesListItem({ repoName, owner, isItemLoaded, data })}
           />
         </div>
       )}
