@@ -49,14 +49,14 @@ export default function ReposList() {
                   <Badge colorScheme={repo.private ? 'red' : 'green'}>
                     {repo.private ? 'Private' : 'Public'}
                   </Badge>
-                  <Link href={`/repo/${repo.name}?owner=${repo.owner.login}`}>
+                  <Link href={`/repo/${repo.owner.login}/${repo.name}`}>
                     <Heading size="md">{repo.name}</Heading>
                   </Link>
                 </CardHeader>
                 <CardBody py="0">
                   {repo.private ? (
                     <Text color="gray.400">
-                      Private repo does not provide issue count.
+                      Private repo does not support issue count.
                     </Text>
                   ) : (
                     <Text fontWeight="bold">
